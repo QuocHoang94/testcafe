@@ -1,0 +1,32 @@
+jobs:
+  - job: testcafe_e2etests
+    pool:
+     vmImage: 'ubuntu-latest'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '10.x'
+        displayName: 'Install Node.js'
+
+      - script: npm install
+        displayName: 'Install TestCafe'
+      - script: npm run test
+        displayName: 'Run TestCafe Test Scripts'
+        
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: '**/report.xml'
+          testResultsFormat: 'JUnit'
+          
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.SourceDirectory)/test/Report/htmlReport.html'
+          artifact: 'htmlReport'
+          publishLocation: 'pipeline'
+          
+schedules:
+- cron: "00 05 * * Mon-Fri"
+  displayName: daily build
+  branches:
+    include:
+      - working 
